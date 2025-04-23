@@ -14,6 +14,11 @@ with open('label_encoder.pkl', 'rb') as encoder_file:
 # Initialize Flask app
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "AI Cyber Shield API is Running! 🚀"
+
+
 @app.route('/predict', methods=['POST'])
 def predict_url():
     data = request.json
