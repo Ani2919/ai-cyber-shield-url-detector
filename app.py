@@ -4,6 +4,7 @@ import traceback
 
 app = Flask(__name__)
 
+# ✅ Load files
 try:
     with open('phishing_url_model.pkl', 'rb') as f:
         model = pickle.load(f)
@@ -12,16 +13,16 @@ try:
     with open('label_encoder.pkl', 'rb') as f:
         label_encoder = pickle.load(f)
     print("✅ All files loaded successfully!")
-except Exception as e:
+except Exception:
     print("❌ Error loading model files:")
     print(traceback.format_exc())
 
 @app.route('/')
 def home():
-    return "<h1>AI Cyber Shield API is Running!</h1><p>Use POST /predict with JSON to test URLs.</p>"
+    return "<h1>AI Cyber Shield API is Running!</h1><p>Use POST /predict with JSON {'url': 'http://example.com'}</p>"
 
 @app.route('/predict', methods=['POST'])
-def predict_url():
+def predict():
     try:
         data = request.get_json()
         url = data.get('url', '')
@@ -35,7 +36,7 @@ def predict_url():
         return jsonify({'prediction': label})
     except Exception as e:
         return jsonify({
-            'error': 'Prediction failed.',
+            'error': 'Prediction failed',
             'details': traceback.format_exc()
         }), 500
 

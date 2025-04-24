@@ -6,30 +6,29 @@ from sklearn.metrics import accuracy_score
 import pandas as pd
 import pickle
 
-# Load your cleaned dataset with proper encoding
+# ✅ Load dataset
 df = pd.read_csv('cleaned_malicious_phish.csv', encoding='ISO-8859-1')
 df = df[['url', 'label']].dropna()
-
-# Replace NaN URLs with empty strings
 df['url'] = df['url'].fillna('')
 
+# ✅ Labels & features
 X = df['url']
 y = df['label']
 
-# Convert labels from string to numbers
+# ✅ Encode labels
 label_encoder = LabelEncoder()
 y_encoded = label_encoder.fit_transform(y)
 
-# TF-IDF Vectorizer with reduced features to prevent memory error
-vectorizer = TfidfVectorizer(max_features=10000)  
+# ✅ TF-IDF vectorizer
+vectorizer = TfidfVectorizer(max_features=10000)
 X_vectorized = vectorizer.fit_transform(X)
 
-# Train-test split
+# ✅ Split
 X_train, X_test, y_train, y_test = train_test_split(
     X_vectorized, y_encoded, test_size=0.2, random_state=42
 )
 
-# Memory-optimized XGBoost model
+# ✅ Train XGBoost model
 model = XGBClassifier(
     n_estimators=100,
     max_depth=5,
@@ -39,25 +38,22 @@ model = XGBClassifier(
     tree_method='hist',
     random_state=42
 )
-
-# Train the model
 model.fit(X_train, y_train)
 
-# Predict and evaluate
+# ✅ Evaluate
 y_pred = model.predict(X_test)
-print("Accuracy:", accuracy_score(y_test, y_pred))
+print("🎯 Accuracy:", accuracy_score(y_test, y_pred))
 
-# Save the trained model as .pkl
-with open('phishing_url_model.pkl', 'wb') as file:
-    pickle.dump(model, file)
+# ✅ Save model
+with open('phishing_url_model.pkl', 'wb') as f:
+    pickle.dump(model, f)
 
-print("✅ Model saved successfully as phishing_url_model.pkl!")
-# Save vectorizer too!
+# ✅ Save vectorizer
 with open('tfidf_vectorizer.pkl', 'wb') as vec_file:
     pickle.dump(vectorizer, vec_file)
 
-print("✅ Vectorizer saved successfully as tfidf_vectorizer.pkl!")
+# ✅ Save label encoder
 with open('label_encoder.pkl', 'wb') as le_file:
     pickle.dump(label_encoder, le_file)
 
-print("✅ Label encoder saved as label_encoder.pkl!")
+print("✅ All files saved successfully!")
