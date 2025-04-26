@@ -176,3 +176,14 @@ cython_debug/
 # Ignore Git tools installed on Windows
 Git/
 
+# Ignore dataset files
+*.csv
+
+# Python cache folders
+__pycache__/
+*.pyc
+
+# Ignore datasets
+balanced_phishing_dataset.csv
+benign_boost.csv
+

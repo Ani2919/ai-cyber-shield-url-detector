@@ -1,28 +1,16 @@
 import pickle
 
-# Load trained model
-with open('phishing_url_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+# Load components
+model = pickle.load(open("model.pkl", "rb"))
+vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+label_encoder = pickle.load(open("label_encoder.pkl", "rb"))
 
-# Load TF-IDF vectorizer
-with open('tfidf_vectorizer.pkl', 'rb') as vec_file:
-    vectorizer = pickle.load(vec_file)
-
-# Load label encoder
-with open('label_encoder.pkl', 'rb') as le_file:
-    label_encoder = pickle.load(le_file)
-
-# Predict function
-def predict_url(url):
-    url_vector = vectorizer.transform([url])
-    prediction = model.predict(url_vector)[0]
-    label = label_encoder.inverse_transform([prediction])[0]
-    return label
-
-# Real-time user input
+# Prediction loop
 while True:
-    url_input = input("🔗 Enter a URL to check (or type 'exit' to quit): ")
-    if url_input.lower() == 'exit':
+    url = input("🔗 Enter a URL to test (or type 'exit'): ").strip()
+    if url.lower() == "exit":
         break
-    result = predict_url(url_input)
-    print(f"🚨 The URL is predicted to be: **{result.upper()}**\n")
+    vec_url = vectorizer.transform([url])
+    pred = model.predict(vec_url)
+    label = label_encoder.inverse_transform(pred)[0]
+    print(f"🛡️ Prediction: {label}\n")

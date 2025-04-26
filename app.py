@@ -1,44 +1,35 @@
 from flask import Flask, request, jsonify
 import pickle
-import traceback
 
+# Initialize Flask app
 app = Flask(__name__)
 
-# ✅ Load files
-try:
-    with open('phishing_url_model.pkl', 'rb') as f:
-        model = pickle.load(f)
-    with open('tfidf_vectorizer.pkl', 'rb') as f:
-        vectorizer = pickle.load(f)
-    with open('label_encoder.pkl', 'rb') as f:
-        label_encoder = pickle.load(f)
-    print("✅ All files loaded successfully!")
-except Exception:
-    print("❌ Error loading model files:")
-    print(traceback.format_exc())
+# Load the saved model and preprocessing tools
+model = pickle.load(open("model.pkl", "rb"))
+vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+label_encoder = pickle.load(open("label_encoder.pkl", "rb"))
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
-    return "<h1>AI Cyber Shield API is Running!</h1><p>Use POST /predict with JSON {'url': 'http://example.com'}</p>"
+    return "🚀 Welcome to Anika's AI Cyber Shield API!"
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    try:
-        data = request.get_json()
-        url = data.get('url', '')
-        if not url:
-            return jsonify({'error': 'No URL provided'}), 400
+    data = request.get_json()
+    if 'url' not in data:
+        return jsonify({"error": "URL missing in request"}), 400
 
-        vector = vectorizer.transform([url])
-        prediction = model.predict(vector)[0]
-        label = label_encoder.inverse_transform([prediction])[0]
+    url = data['url']
 
-        return jsonify({'prediction': label})
-    except Exception as e:
-        return jsonify({
-            'error': 'Prediction failed',
-            'details': traceback.format_exc()
-        }), 500
+    # Preprocess and predict
+    vectorized_url = vectorizer.transform([url])
+    prediction_encoded = model.predict(vectorized_url)[0]
+    prediction_label = label_encoder.inverse_transform([prediction_encoded])[0]
+
+    return jsonify({
+        "url": url,
+        "prediction": prediction_label
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
